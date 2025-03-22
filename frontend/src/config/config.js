@@ -1,0 +1,1 @@
+export const configUrl = "http://task_manager.test/api";
