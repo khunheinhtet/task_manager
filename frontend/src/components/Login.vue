@@ -18,12 +18,18 @@
   
         <p v-if="error" class="error">{{ error }}</p>
       </form>
+      <button class="register-button" style="margin-top: 10px; background-color: #007bff; color: white; border: none; border-radius: 5px; padding: 10px; cursor: pointer;">
+        <span style="margin-right: 5px;">Don't have an account?</span>
+        <router-link style="color: white;" to="/register">Register</router-link>
+      </button>
     </div>
   </template>
   
   <script>
   import axios from 'axios';
   import { configUrl } from '@/config/config';
+  import Cookies from 'universal-cookie';
+
   export default {
     data() {
       return {
@@ -39,24 +45,15 @@
         this.error = "";
   
         try {
-          // const response = await fetch(`${configUrl}/login`, {
-          //   method: "POST",
-          //   headers: { "Content-Type": "application/json" },
-          //   credentials: "include", // Required for Laravel Sanctum
-          //   body: JSON.stringify({ email: this.email, password: this.password }),
-          // });
-          const reqData = {
-            email: this.email, 
-            password: this.password
-          }
-          const response = await axios.post(`${configUrl}/login`, reqData)
+          const response = await axios.post(`${configUrl}/login`, { email: this.email, password: this.password }, { withCredentials: true });
           const data = await response.data;
   
-          if (!response.ok) {
+          if (response.status !== 200) {
             throw new Error(data.error || "Login failed");
           }
-  
-          alert("Login successful!");
+
+          const cookies = new Cookies();
+          cookies.set("token", data.token, { path: "/" });
           this.$router.push("/");
         } catch (err) {
           this.error = err.message;
@@ -64,7 +61,7 @@
           this.loading = false;
         }
       },
-    },
+    }
   };
   </script>
   

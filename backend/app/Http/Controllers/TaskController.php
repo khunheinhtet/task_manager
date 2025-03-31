@@ -20,6 +20,16 @@ class TaskController extends Controller
         // dd($data);
         return view('home', ['data' => $data]);
     }
+    
+    function getdata(Request $request)
+    {
+        $data = DB::table('tasks')->orderByRaw("CASE 
+                            WHEN priority = 'High' THEN 1
+                            WHEN priority = 'Medium' THEN 2
+                            WHEN priority = 'Low' THEN 3
+                        END")->get();
+        return response()->json($data, 200);
+    }
 
     function new()
     {

@@ -1,6 +1,3 @@
-<script setup>
-</script>
-
 <template>
   <div class="container">
     <div class="table-container">
@@ -15,20 +12,55 @@
             <th>Due Date</th>
           </tr>
         </thead>
-        <tbody>
-          <tr>
-            <td>1</td>
-            <td>Test 1</td>
-            <td>Test 2</td>
-            <td class="priority low">Low</td>
-            <td>Pending</td>
-            <td>2025-03-22</td>
-          </tr>
+        <tbody v-if="data.length > 0">
+            <tr v-for="(data, index) in data" :key="index">
+              <td>{{ index + 1 }}</td>
+              <td>{{ data.title }}</td>
+              <td>{{ data.description }}</td>
+              <td>
+                <span :class="'priority ' + data.priority.toLowerCase()">
+                  {{ data.priority }}
+                </span>
+              </td>
+              <td>{{ data.status }}</td>
+              <td>{{ data.dueDate }}</td>
+            </tr>
         </tbody>
       </table>
     </div>
   </div>
 </template>
+
+
+<script>
+import axios from 'axios';
+import { configUrl } from '@/config/config';
+import Cookies from 'universal-cookie';
+
+export default {
+  data() {
+    return {
+      data: [],
+    };
+  },
+  async mounted() {
+    const cookies = new Cookies();
+    const token = cookies.get('token');
+    const response = await axios.get(`${configUrl}/getdata`, {
+    withCredentials: true,
+    headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}` // Fixed typo here
+        }
+    });
+
+    if (response.status !== 200) {
+      throw new Error("Failed to fetch tasks");
+    }
+    this.data = response.data;
+  },
+};
+</script>
 
 <style scoped>
 /* Container */

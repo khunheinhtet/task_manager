@@ -5,35 +5,54 @@ import Register from '@/components/Register.vue';
 import Cookies from 'universal-cookie';
 const cookies = new Cookies();
 
+
+// Define route paths as constants
+const ROUTES = {
+  HOME: '/',
+  LOGIN: '/login',
+  REGISTER: '/register',
+};
+
+// Define routes
 const routes = [
   {
-    path: '/',
+    path: ROUTES.HOME,
     name: 'home',
     component: Home,
-    // meta: { requiresAuth: true }
+    meta: { requiresAuth: true },
   },
   {
-    path: '/login',
+    path: ROUTES.LOGIN,
     name: 'login',
-    component: Login
+    component: Login,
   },
   {
-    path: '/register',
+    path: ROUTES.REGISTER,
     name: 'register',
-    component: Register
+    component: Register,
   },
-]
+];
+
+// Create router instance
 const router = createRouter({
   history: createWebHistory(),
-  routes
-})
+  routes,
+});
 
-router.beforeEach((to, from, next) => {
+
+// Authentication check function
+const isAuthenticated = () => {
   const token = cookies.get('token');
+  return !!token; // Returns true if token exists, false otherwise
+};
 
-  if (to.meta.requiresAuth && !token) {
-    next('/login');
+// Global navigation guard
+router.beforeEach((to, from, next) => {
+  if (to.meta.requiresAuth && !isAuthenticated()) {
+    // Redirect to login if not authenticated
+    next(ROUTES.LOGIN);
   } else {
+    // Proceed to the next route
     next();
   }
 });

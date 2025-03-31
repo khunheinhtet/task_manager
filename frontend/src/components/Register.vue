@@ -23,17 +23,22 @@
   
         <p v-if="error" class="error">{{ error }}</p>
       </form>
+      <button class="register-button" style="margin-top: 10px; background-color: #007bff; color: white; border: none; border-radius: 5px; padding: 10px; cursor: pointer;">
+        <span style="margin-right: 5px;">Already have an account?</span>
+        <router-link style="color: white;" to="/login">Login</router-link>
+      </button>
     </div>
   </template>
   
   <script>
+  import axios from "axios";
+  import { configUrl } from "@/config/config";
   export default {
     data() {
       return {
         name: "",
         email: "",
         password: "",
-        password_confirmation: "",
         loading: false,
         error: "",
       };
@@ -44,22 +49,13 @@
         this.error = "";
   
         try {
-          const response = await fetch("http://127.0.0.1:8000/api/register", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include", // Required for Laravel Sanctum
-            body: JSON.stringify({
-              name: this.name,
-              email: this.email,
-              password: this.password,
-              password_confirmation: this.password_confirmation,
-            }),
+          const response = await axios.post(`${configUrl}/register`, {
+            username: this.name,
+            email: this.email,
+            password: this.password
           });
-  
-          const data = await response.json();
-  
-          if (!response.ok) {
-            throw new Error(data.error || "Registration failed");
+          if(response.status !== 200) {
+            throw new Error("Registration failed");
           }
   
           alert("Registration successful!");
